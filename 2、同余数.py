@@ -6,6 +6,8 @@
     4、选取公钥 E 满足：质数；1<公钥<T；不是T的因子
     5、计算私钥 D 满足：(D * E) % T = 1
 """
+import random
+
 # 初始化数据
 # Num为学号，Reverse_Num为反转学号，List_Prime为不大于Sqrt(Num)的所有素数
 Num = '57123514'
@@ -50,7 +52,6 @@ def GetInverseElement(n, m):
         return
 
     if n > m:
-
         a = n
         b = m
     else:
@@ -110,15 +111,15 @@ def RSA(p, q):
     print(f"3、欧拉函数：T = {euler}") # 打印欧拉函数
 
     e = 0
-    # 找到 1 < e < euler 的一个素数，且与 euler 互质
-    for i in range(2, euler):
+    # 随机找到 1 < e < euler 的一个素数，且与 euler 互质
+    while True :
+        e = random.randint(2, euler - 1)
         Status = True
-        for j in range(2, i):
-            if i % j == 0:
+        for j in range(2, e):   # 判断e是否为素数
+            if e % j == 0:
                 Status = False
                 break
-        if Status == True and gcd(i, euler) == 1:  # i 为素数 且 与euler互质
-            e = i
+        if Status == True and gcd(e, euler) == 1:  # e 为素数 且 与euler互质
             break
     print(f"4、选取公钥：E = {e}")
 
@@ -128,16 +129,17 @@ def RSA(p, q):
     print(f"总结：公钥是K_e = ({e},{n})  私钥是K_d = ({d},{n})")
 
     # 对学号Num进行加密
+    print(f"--- 对数据{Num}进行加密 ---")
     Data = Num
     C = []
     M = []
     for i in range(0, 3):
         C.append((Data % 1000) ** e % n)
         Data //= 1000
-    print(f"加密：{C}")
+    print(f"加密后：{C}")
     for i in range(2, -1, -1):
         M.append(C[i] ** d % n)
-    print(f"解密：{M}")
+    print(f"解密后：{M}")
 
 if __name__ == '__main__':
     p, q = GetMaxPrime(Reverse_Num)

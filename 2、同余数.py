@@ -7,6 +7,7 @@
     5、计算私钥 D 满足：(D * E) % T = 1
 """
 import random
+import math
 
 # 初始化数据
 # Num为学号，Reverse_Num为反转学号，List_Prime为不大于Sqrt(Num)的所有素数
@@ -100,6 +101,23 @@ def gcd(n, m):
         b = r
     return b
 
+# 模重复平方计算法
+def mod_exp(radix, index, m):
+    """
+    :param radix: 底数
+    :param index: 指数
+    :param m: 模数
+    :return:
+    """
+    index = bin(index)[2:] # 指数转二进制
+    a = 1
+    b = radix
+    for i in index[::-1]:
+        if i == '1':
+            a = (a * b) % m
+        b = b * b % m
+    return a
+
 # RSA加密运算 参考教材例子3.2.7
 def RSA(p, q):
     print(f"1、两个质数：{p}，{q}")
@@ -114,12 +132,10 @@ def RSA(p, q):
     # 随机找到 1 < e < euler 的一个素数，且与 euler 互质
     while True :
         e = random.randint(2, euler - 1)
-        Status = True
-        for j in range(2, e):   # 判断e是否为素数
+        for j in range(2, int(math.sqrt(e))):   # 判断e是否为素数
             if e % j == 0:
-                Status = False
-                break
-        if Status == True and gcd(e, euler) == 1:  # e 为素数 且 与euler互质
+                continue
+        if gcd(e, euler) == 1:  # e 为素数 且 与euler互质
             break
     print(f"4、选取公钥：E = {e}")
 
@@ -134,13 +150,15 @@ def RSA(p, q):
     C = []
     M = []
     for i in range(0, 3):
-        C.append((Data % 1000) ** e % n)
+        temp = mod_exp(Data % 1000, e, n)
+        C.append(temp)
         Data //= 1000
     print(f"加密后：{C}")
     for i in range(2, -1, -1):
-        M.append(C[i] ** d % n)
+        temp = mod_exp(C[i], d, n)
+        M.append(temp)
     print(f"解密后：{M}")
 
 if __name__ == '__main__':
     p, q = GetMaxPrime(Reverse_Num)
-    RSA(23, 29)
+    RSA(p, q)
